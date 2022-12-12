@@ -1,0 +1,87 @@
+sokak insertation 
+insert into sokak ("sokakNo")
+VALUES();
+///////////////////////////////
+mahalle insertation 
+insert into mahalle("mahalleAdi","sokakNo")
+Values('',);
+/////////////////////////////
+ilce insertation 
+insert into ilce("ilceAdi","mahalleNo")
+Values('',);
+//////////////////////
+il insertation il
+insert into il("ilAdi","ilceNo")
+Values('',);
+/////////////////////
+yazar insertation 
+insert into yazar ("Adi","yas")
+VALUES('',);
+////////////
+INSERT INTO adres ("ilNo","ilceNo","mahalleNo","sokakNo","kisi_id");
+///////////////////
+
+///////////////////////////////
+الاضافة رح تكون هيك لل 
+Uye 
+INSERT INTO kisi("kisiId","adi","soyadi","Uye","Personel")
+Values( , , , ,'E','H');
+INSERT INTO Uye("UNo")
+VALUES (currval('"kisi_KNo_seq"'));
+INSERT INTO adres ("ilNo","ilceNo","mahalleNo","sokakNo","kisi_id");
+VALUES(,,,,currval('"kisi_KNo_seq"'));
+INSERT INTO ilet_b("TelNO","adresid","kisiId","EmailAD")
+VALUES(,currval('"adres_adresNo_seq"'),currval('"kisi_KNo_seq"'),);
+/////////////////////////////////////
+الاضافة رح تكون هيك لل 
+personel
+INSERT INTO kisi("kisiId","adi","soyadi","Uye","Personel")
+Values( , , , 'H','E');
+INSERT INTO personel("PNo","Ucreti")
+VALUES (currval('"kisi_KNo_seq"'),);
+INSERT INTO adres ("ilNo","ilceNo","mahalleNo","sokakNo","kisi_id");
+VALUES(,,,,currval('"kisi_KNo_seq"'));
+INSERT INTO ilet_b("TelNO","adresid","kisiId","EmailAD")
+VALUES(,currval('"adres_adresNo_seq"'),currval('"kisi_KNo_seq"'),);
+//////////////////////
+ملاحظة قبل ما اعمل اضافة لحدا من الثنين بدي افحص اذا ال
+id 
+موجود اولا 
+لطباعة ال uye 
+بنستخدم 
+ select * from kisi INNER JOIN Uye ON kisi."KNo" =Uye."UNo";
+ select * from kisi INNER JOIN ilet_b ON kisi."KNo" =ilet_b."kisiId";	
+ select * from kisi RIGHT JOIN adres ON kisi."KNo" =adres ."kisi_id";
+لطياعة ال 
+Personel
+select * from kisi INNER JOIN Uye ON kisi."KNo" =personel."PNo";
+///////////////////////////////////////////////////////////
+insert into yayinevi("adi")
+VALUES('');
+///////////////////////////////////////
+insert into kitap("adi","yazarid","yayinevi_ID","tur","stockSayisi")
+VALUES(,,,,);
+//
+ INSERT INTO kit_ad("kit_id") VALUES(currval('"kitap_id_seq"'));
+*//PRINTING //
+select * from kitap RIGHT JOIN kit_ad ON kitap."id"= kit_ad."kit_id";
+///////////////////////////////////////
+kutup hane 
+insert into kutuphane("adi","SorumluId","Uye_Sayisi","kitap_Sayisi")
+/////
+odunc al
+INSERT INTO Odunc("UyeId","PersonelID","OD_Al_kit_ID","Tur")
+VALUES(, , , ,'ODUNC AL');
+ INSERT INTO fatura("Topalm","islemNo")
+VALUES(10,currval('"fatura_NO_seq"'));
+UPDATE kitap set "O_AL_S"=1 WHERE "id"=1;
+ UPDATE Uye SET "OD_Al_kit_S" = 1 WHERE "UNo"=2;
+//////////////////////////////////////////////////////
+Kitap iade 
+INSERT INTO Odunc("UyeId","PersonelID","OD_Al_kit_ID","Tur")
+VALUES(, , , ,'IADE');
+
+INSERT INTO fatura("Topalm","islemNo")
+VALUES(10,currval('"fatura_NO_seq"'));
+ UPDATE Uye SET "OD_Al_kit_S" = 1 WHERE "UNo"=2;
+

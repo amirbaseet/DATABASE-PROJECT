@@ -1,0 +1,218 @@
+
+CREATE  OR REPLACE FUNCTION KNo_getir( _kisiId integer) RETURNS integer AS $$
+    SELECT  "KNo" from kisi WHERE "kisiId"=_kisiId;
+$$ LANGUAGE SQL;
+
+CREATE FUNCTION kisiId_getir( _kisiId integer) RETURNS integer AS $$
+    SELECT  "kisiId" from kisi WHERE "KNo"=_kisiId;
+$$ LANGUAGE SQL;
+
+CREATE FUNCTION adi_getir( _kisiId integer) RETURNS varchar AS $$
+    SELECT  "adi" from kisi WHERE "KNo"=_kisiId;
+$$ LANGUAGE SQL;
+
+CREATE FUNCTION Soyadi_getir( _kisiId integer) RETURNS varchar AS $$
+    SELECT  "soyadi" from kisi WHERE "KNo"=_kisiId;
+$$ LANGUAGE SQL;
+/*************************************/
+UYE
+////////////PROCEDURE add_Uye
+CREATE OR REPLACE PROCEDURE add_Uye(_kisiId INT,_adi VARCHAR(255),_soyadi VARCHAR(255),
+_ilNo INT,_ilceNo INT,_mahalleNo INT,_sokakNo INT,_TelNO INT,_EmailAD VARCHAR(255))
+LANGUAGE SQL
+AS $BODY$
+INSERT INTO kisi("kisiId","adi","soyadi","Uye","Personel")
+Values( _kisiId ,_adi ,_soyadi , 'E', 'H');
+
+INSERT INTO Uye("UNo")
+VALUES (currval('"kisi_KNo_seq"'));
+
+INSERT INTO adres ("ilNo","ilceNo","mahalleNo","sokakNo","kisi_id")
+VALUES(_ilNo,_ilceNo,_mahalleNo,_sokakNo,currval('"kisi_KNo_seq"'));
+
+INSERT INTO ilet_b("TelNO","adresid","kisiId","EmailAD")
+VALUES(_TelNO,currval('"adres_adresNo_seq"'),currval('"kisi_KNo_seq"'),_EmailAD);
+
+$BODY$;
+
+///// PROCEDURE  ADD_Uye_if_k_exst
+CREATE OR REPLACE PROCEDURE ADD_Uye_if_k_exst(_kisiId INT)
+LANGUAGE SQL
+AS $BODY$
+UPDATE kisi SET "Uye"='E' WHERE "KNo"=KNo_getir( _kisiId );
+INSERT INTO Uye("UNo")
+VALUES (KNo_getir( _kisiId ));
+
+$BODY$;
+CALL ADD_Uye()
+
+CREATE  OR REPLACE FUNCTION KNo_getir( _kisiId integer) RETURNS integer AS $$
+    SELECT  "KNo" from kisi WHERE "kisiId"=_kisiId;
+$$ LANGUAGE SQL;
+
+
+//////////////////////PROCEDURE  delete_Uye
+
+CREATE OR REPLACE PROCEDURE delete_Uye(_KNO INT)
+LANGUAGE SQL
+AS $BODY$
+   DELETE FROM Uye WHERE "UNo"= KNo_getir( _KNO);
+   UPDATE kisi set "Uye" = 'H' WHERE "KNo" =KNo_getir( _KNO);
+   UPDATE kutuphane set "Uye_Sayisi" = "Uye_Sayisi"-1 where "NO" = 2;
+$BODY$;
+///////////////////TRIGGER Uye_S_ARTTR
+ CREATE  OR REPLACE FUNCTION  Uye_S_ARTTR()
+   RETURNS TRIGGER 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE eski INT;
+BEGIN
+eski ="Uye_Sayisi" from kutuphane  WHERE "NO"=2;
+eski = eski +1;
+UPDATE kutuphane SET  "Uye_Sayisi"= eski  WHERE "NO"=2;
+   return OLD;
+
+END;
+$$;
+
+CREATE TRIGGER Uye_S_ARTTR_TRGGR 
+   AFTER INSERT ON Uye
+FOR EACH ROW
+       EXECUTE PROCEDURE Uye_S_ARTTR();
+
+      DROP TRIGGER PER_S_ARTTR_TRGGR on Uye;
+       DROP FUNCTION Uye_S_ARTTR;
+/***************************************************************************/
+////////////// PROCEDURE add_Personel
+CREATE OR REPLACE PROCEDURE add_Personel(_kisiId INT,_adi VARCHAR(255),_soyadi VARCHAR(255),_Ucreti INT,
+_ilNo INT,_ilceNo INT,_mahalleNo INT,_sokakNo INT,_TelNO INT,_EmailAD VARCHAR(255))
+LANGUAGE SQL
+AS $BODY$
+INSERT INTO kisi("kisiId","adi","soyadi","Uye","Personel")
+Values( _kisiId ,_adi ,_soyadi , 'H', 'E');
+INSERT INTO personel("PNo","Ucreti")
+VALUES (currval('"kisi_KNo_seq"'),_Ucreti);
+
+INSERT INTO adres ("ilNo","ilceNo","mahalleNo","sokakNo","kisi_id")
+VALUES(_ilNo,_ilceNo,_mahalleNo,_sokakNo,currval('"kisi_KNo_seq"'));
+
+INSERT INTO ilet_b("TelNO","adresid","kisiId","EmailAD")
+VALUES(_TelNO,currval('"adres_adresNo_seq"'),currval('"kisi_KNo_seq"'),_EmailAD);
+
+$BODY$;
+////////////////PROCEDURE ADD_P_if_k_exst
+CREATE OR REPLACE PROCEDURE ADD_P_if_k_exst(_kisiId INT,_Ucreti INT)
+LANGUAGE SQL
+AS $BODY$
+UPDATE kisi SET "Personel"='E';
+INSERT INTO personel("PNo","Ucreti")
+VALUES (KNo_getir( _kisiId ),_Ucreti);
+$BODY$;
+
+///////////////////PROCEDURE delete_Personel
+CREATE OR REPLACE PROCEDURE delete_Personel(_KNO INT)
+LANGUAGE SQL
+AS $BODY$
+   DELETE FROM Personel WHERE "PNo"=KNo_getir( _KNO);
+   UPDATE kisi set "Personel" = 'H' WHERE "KNo" =KNo_getir( _KNO);
+   UPDATE kutuphane set "Personel_Sayisi" = "Personel_Sayisi"-1 where "NO" = 2;
+$BODY$;
+
+///////////// TRIGGER PER_S_ARTTR_TRGGR 
+   CREATE  OR REPLACE FUNCTION  PERSONEL_S_ARTTR()
+   RETURNS TRIGGER 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE eski INT;
+BEGIN
+eski ="Personel_Sayisi" from kutuphane  WHERE "NO"=2;
+eski = eski +1;
+UPDATE kutuphane SET  "Personel_Sayisi"= eski  WHERE "NO"=2;
+
+   return OLD;
+END;
+$$;
+
+CREATE TRIGGER PER_S_ARTTR_TRGGR 
+   AFTER INSERT ON Personel
+FOR EACH ROW
+       EXECUTE PROCEDURE PERSONEL_S_ARTTR();
+       
+       DROP TRIGGER PER_S_ARTTR_TRGGR on personel;
+       DROP FUNCTION PERSONEL_S_ARTTR;
+
+////////////////////////Personel_sil_once_TRGGR 
+CREATE FUNCTION Personel_sil_once()  RETURNS trigger AS $$
+      DECLARE 
+      id INT;
+      adi VARCHAR(255);
+      Soyadi VARCHAR(255);
+     
+         BEGIN
+         id = kisiId_getir(OLD."PNo");
+         adi = adi_getir(OLD."PNo");
+         Soyadi =Soyadi_getir(OLD."PNo");
+         
+
+          INSERT INTO sil_kisi("id","adi","Soyadi","tur" ,"kutuphaneid") 
+            VALUES (id,adi,Soyadi,'Uye',2);
+
+            return OLD;
+         
+           
+         END;
+      $$ LANGUAGE plpgsql;
+
+      CREATE TRIGGER Personel_sil_once_TRGGR 
+         BEFORE DELETE ON Personel
+      FOR EACH ROW
+            EXECUTE PROCEDURE Personel_sil_once();
+         
+               DROP TRIGGER uye_sil_once_TRGGR on Uye;
+               DROP FUNCTION uye_sil_once;
+////////*****************************************************////////////
+
+////////////////////////////yazi_DZLT_TRGGR
+CREATE OR REPLACE FUNCTION yazi_DZLT()
+RETURNS TRIGGER
+AS 
+$$
+BEGIN
+NEW."adi"=LOWER(NEW."adi");
+NEW."soyadi"=UPPER(NEW."soyadi");
+
+RETURN NEW;
+END;
+$$
+LANGUAGE "plpgsql";
+
+CREATE TRIGGER yazi_DZLT_TRGGR
+BEFORE INSERT OR UPDATE ON kisi
+FOR EACH ROW
+EXECUTE PROCEDURE yazi_DZLT();
+
+////*******************************************
+/////////////////////KTP_S_ARTTR_TRGGR
+      CREATE  OR REPLACE FUNCTION  KTP_S_ARTTR()
+   RETURNS TRIGGER 
+   LANGUAGE PLPGSQL
+AS $$
+BEGIN
+UPDATE kutuphane SET "kitap_Sayisi"= "kitap_Sayisi"+1 where "NO"=2;
+RETURN OLD;
+
+END;
+$$;
+
+CREATE TRIGGER KTP_S_ARTTR_TRGGR 
+   AFTER INSERT ON "kitap"
+FOR EACH ROW
+       EXECUTE PROCEDURE KTP_S_ARTTR();
+
+
+   DROP TRIGGER KTP_S_ARTTR_TRGGR ON kitap;
+   DROP FUNCTION KTP_S_ARTTR;
+
+       //**//
+        insert into kitap ("adi","yazarid","yayinevi_ID","tur","stockSayisi")
+        VALUES ('ASK',1,1,'ROMANTIK',5);

@@ -7,37 +7,33 @@ TEMPLATE=template0;
 ///////////////////
 CREATE TABLE sokak(
  "No" SERIAL,
- "sokakNo" INT NOT NULL
+ "sokakNo" INT NOT NULL,
+ "mahalleNo" INT,
+ CONSTRAINT "SokakPK" PRIMARY KEY("No"),
+ CONSTRAINT "MAH_FK"FOREIGN KEY ("mahalleNo") REFERENCES mahalle("mahalleNo")
   );
-	ALTER TABLE sokak 
-ADD  CONSTRAINT "SokakPK" PRIMARY KEY("No")
 ///////////////////////////
 CREATE TABLE mahalle(
 "mahalleNo" SERIAL,
 "mahalleAdi" VARCHAR(255),
-"sokakNo" int ,
+"ilceNo" int ,
 CONSTRAINT "mahallePK" PRIMARY KEY("mahalleNo"),
-
+CONSTRAINT "mahalleFK" FOREIGN KEY ("ilceNo") REFERENCES ilce("ilceNo")
 );
-ALTER TABLE mahalle 
-ADD  CONSTRAINT "mahalleFK" FOREIGN KEY ("sokakNo") REFERENCES sokak("No");
 
 ////////////////////
 CREATE TABLE ilce(
 "ilceNo" SERIAL,
 "ilceAdi" VARCHAR(255),
-"mahalleNo" int ,
+"ilNO" int ,
 CONSTRAINT "ilcePK" PRIMARY KEY("ilceNo"),
-CONSTRAINT "ilceFK" FOREIGN KEY("mahalleNo") REFERENCES mahalle("mahalleNo")
+CONSTRAINT "ilceFK" FOREIGN KEY("ilNO") REFERENCES il("ilNo")
  ON DELETE NO ACTION ON UPDATE NO ACTION);
 ////////////////////////////////
 CREATE TABLE il(
 "ilNo" SERIAL,
 "ilAdi" VARCHAR(255),
-"ilceNo" int ,
-CONSTRAINT "ilPK" PRIMARY KEY("ilNo"),
-CONSTRAINT "ilceFK" FOREIGN KEY("ilceNo") REFERENCES ilce("ilceNo")
- ON DELETE NO ACTION ON UPDATE NO ACTION);
+CONSTRAINT "ilPK" PRIMARY KEY("ilNo"));
 ////////////////////////////////
 CREATE TABLE adres(
 "adresNo" SERIAL,
@@ -55,14 +51,13 @@ ADD COLUMN "ilceNo" int,
 ADD COLUMN "mahalleNo" int
 ADD COLUMN "sokakNo" int
 
-ADD CONSTRAINT "sokakFK" FOREIGN KEY("sokakNo") REFERENCES sokak("No")
- ON DELETE NO ACTION ON UPDATE NO ACTION
+ALTER TABLE adres
+ADD CONSTRAINT "ilFK" FOREIGN KEY("ilNo") REFERENCES il("ilNo"),
+ADD CONSTRAINT "sokakFK" FOREIGN KEY("sokakNo") REFERENCES sokak("No"),
 
-ADD CONSTRAINT  "ilceFK" FOREIGN KEY("ilceNo") REFERENCES ilce("ilceNo")
- ON DELETE NO ACTION ON UPDATE NO ACTION
+ADD CONSTRAINT  "ilceFK" FOREIGN KEY("ilceNo") REFERENCES ilce("ilceNo"),
 
-ADD CONSTRAINT "mahalleFK" FOREIGN KEY("mahalleNo") REFERENCES mahalle("mahalleNo")
- ON DELETE NO ACTION ON UPDATE NO ACTION
+ADD CONSTRAINT "mahalleFK" FOREIGN KEY("mahalleNo") REFERENCES mahalle("mahalleNo");
 ///////////////////////////////
 CREATE TABLE yayinevi(
 "No" SERIAL,
@@ -147,9 +142,7 @@ CONSTRAINT "iletNoPK" PRIMARY KEY("iletNo"));
 
 ALTER TABLE ilet_B
 ADD CONSTRAINT "iletNoPK" PRIMARY KEY("iletNO")
-ADD CONSTRAINT "ilet_ad_FK" FOREIGN KEY ("adresid")
-REFERENCES "adres" ("adresNo")
-
+ADD CONSTRAINT "ilet_ad_FK" FOREIGN KEY(adresid) REFERENCES adres("adresNo") ON UPDATE CASCADE ON DELETE CASCADE ;
 ADD CONSTRAINT "ilet_Kis_FK" FOREIGN KEY ("kisiId") REFERENCES kisi("KNo") ON UPDATE CASCADE ON DELETE CASCADE;
 /////////////////////////
 CREATE TABLE Fatura(
@@ -160,7 +153,8 @@ CREATE TABLE Fatura(
 	);
 	ALTER TABLE Fatura 
 	ADD CONSTRAINT "F_pk" PRIMARY KEY("NO"),
-	 ADD CONSTRAINT "islemNO_FK"FOREIGN KEY("islemNo")REFERENCES Odunc("islemNo")ON UPDATE CASCADE ON DELETE CASCADE;
+	ADD CONSTRAINT "F_FK"FOREIGN KEY("islemNo")
+	REFERENCES Odunc("islemNo") ON DELETE CASCADE ON UPDATE CASCADE
 	///////////////////
 	CREATE TABLE kitap (
 		"id" SERIAL,
@@ -209,14 +203,14 @@ CREATE TABLE Fatura(
 	ADD CONSTRAINT "Fat_FK"FOREIGN KEY("FaturaNo")
 	REFERENCES Fatura("NO"),
 	
-	ADD CONSTRAINT "Uye_FK"FOREIGN KEY("UyeId")
-	REFERENCES Uye("UNo"),
+	ADD CONSTRAINT "Uye_FK" FOREIGN KEY("UyeId") REFERENCES Uye("UNo")
+	 ON UPDATE CASCADE ON DELETE CASCADE ,
 	
-	ADD CONSTRAINT "Per_FK"FOREIGN KEY("PersonelID")
-	REFERENCES personel("PNo"),
+	ADD CONSTRAINT "PersonelID" FOREIGN KEY("PersonelID") REFERENCES Personel("PNo") 
+	ON UPDATE NO ACTION ON DELETE NO ACTION,
 
 	ADD CONSTRAINT "KitapID_FK"FOREIGN KEY("OD_Al_kit_ID")
-	REFERENCES kitap("id");
+	REFERENCES kitap("id")ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 	ADD COLUMN "Tur" VARCHAR(10);
 
@@ -237,23 +231,21 @@ CREATE TABLE Fatura(
 	
 
 	CREATE TABLE Sil_Kisi(
-		"id"  int NOT NULL,
+		"NO" SERIAL,
+		"kutuphaneid" INT NOT NULL,
+		"id" int NOT NULL,
 		"adi" VARCHAR(255),
 		"Soyadi" VARCHAR(255),
 		"tur" VARCHAR(255),
-		"SilmeTarihi" DATE DEFAULT CURRENT_DATE,
-		"OD_Al_kit_S" int 
+		"SilmeTarihi" DATE DEFAULT CURRENT_DATE
 		);
 ALTER TABLE Sil_Kisi 
-	ADD CONSTRAINT "Sil_Kisi_pk" PRIMARY KEY("id")
+	ADD CONSTRAINT "Sil_Kisi_pk" PRIMARY KEY("NO"),
+
+	ADD CONSTRAINT "kutuphaneid_FK"FOREIGN KEY("kutuphaneid")
+	REFERENCES kutuphane("NO") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 	
-	ADD CONSTRAINT "Sil_Kisi_Sorumlu_Fk"FOREIGN KEY("id")
-	REFERENCES kutuphane("SorumluId"),
-	ADD CONSTRAINT "Sil_Uye_Fk"FOREIGN KEY("id")
-	REFERENCES Uye("UNo"),
-	ADD CONSTRAINT "Sil_Personel_Fk"FOREIGN KEY("id")
-	REFERENCES Personel("PNo");
 
 ///////////////////////////TRIGRES////////////////////////
 

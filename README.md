@@ -1,3 +1,3 @@
 # DATABASE-PROJECT
-VTYS PROJESİ /kütüphane
+VTYS PROJESİ /kütüphane/Library
 using PGSQL with c# WindowsForm  
